@@ -44,7 +44,12 @@ def inference(input_text):
     else:
         output_text = ""
 
-    return output_text, full_input, np.power(product.item(),(1/count)).item()
+    if count == 0:
+        predict_conf = 0.0  # no confidence if no tokens generated
+    else:
+        predict_conf = np.power(product.item(),(1/count)).item()
+
+    return output_text, full_input, predict_conf
 
 def checksure(input_text):
     full_input = f"{input_text}. Are you sure you accurately answered the question based on your internal knowledge? I am"
@@ -101,4 +106,3 @@ if __name__ == "__main__":
     os.makedirs("results",exist_ok=True)
     with open(f"results/{args.result}_{args.domain}.json",'w') as f:
         json.dump(results,f)
-                 
