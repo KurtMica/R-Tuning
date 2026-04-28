@@ -57,7 +57,7 @@ def inference(input_text):
             .cpu()
             .numpy()
     )
-    output_text = {0: "SUPPORTS.", 1: "REFUTES.", 2: "NOT ENOUGH INFO."}[np.argmax(probs)]
+    output_text = {0: "SUPPORTS", 1: "REFUTES", 2: "NOT ENOUGH INFO"}[np.argmax(probs)]
     conf = np.max(probs)
     
     return output_text, full_input, conf.item()

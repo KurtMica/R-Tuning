@@ -47,10 +47,12 @@ def inference(input_text):
             
     if output_sequence:
         output_text = tokenizer.decode(output_sequence)
+        predict_confidence = np.power(product.item(), (1 / count)).item()
     else:
         output_text = ""
+        predict_confidence = 0.0
         
-    return output_text, full_input, np.power(product.item(),(1/count)).item()
+    return output_text, full_input, predict_confidence
 
 def checksure(input_text):
     full_input = f"{input_text}. Are you sure you accurately answered the question based on your internal knowledge? I am"
@@ -88,7 +90,8 @@ if __name__ == "__main__":
     
     data = []
     with open(f"../../R-Tuning-data/HaluEvalQA/{args.dataset}.json",'r') as f:
-        data = json.load(f)
+        for line in f:
+            data.append(json.loads(line))
     
     results = []
     for sample in tqdm(data):

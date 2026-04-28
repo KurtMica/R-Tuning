@@ -95,7 +95,8 @@ if __name__ == "__main__":
     
     data = []
     with open(f"../../R-Tuning-data/WiCE/{args.dataset}.json",'r') as f:
-        data = json.load(f)
+        for line in f:
+            data.append(json.loads(line))
     
     results = []
     for sample in tqdm(data):
