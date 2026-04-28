@@ -42,12 +42,13 @@ https://drive.google.com/drive/folders/17v7IbnAPXX1NQpqjlDMhhxFK0cuNYSd6?usp=sha
 ## Requirements
 
 ```bash
-git clone -b v0.0.5 https://github.com/OptimalScale/LMFlow.git
+module load cuda/12.4
+git clone -b v1.0.0 https://github.com/OptimalScale/LMFlow.git
 cd LMFlow
 conda create -n lmflow python=3.9 -y
 conda activate lmflow
 conda install mpi4py
-bash install.sh
+pip install -e .
 cd ..
 ```
 The `LMFlow` environment contains all the packages needed.
