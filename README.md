@@ -45,9 +45,11 @@ https://drive.google.com/drive/folders/17v7IbnAPXX1NQpqjlDMhhxFK0cuNYSd6?usp=sha
 module load cuda/12.4
 git clone -b v1.0.0 https://github.com/OptimalScale/LMFlow.git
 cd LMFlow
-conda create -n lmflow python=3.9 -y
+conda create -n lmflow python=3.10 -y
+module load cuda/12.4
 conda activate lmflow
 conda install mpi4py
+pip install lm-polygraph==0.6.0
 pip install -e .
 cd ..
 ```
