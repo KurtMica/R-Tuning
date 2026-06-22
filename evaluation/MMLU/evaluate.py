@@ -8,6 +8,13 @@ from scipy.stats import entropy
 import math
 import os
 import numpy as np
+from lm_polygraph.estimators import MaximumSequenceProbability, Perplexity, MeanTokenEntropy
+
+ESTIMATORS = {
+    "MSP":              MaximumSequenceProbability(),
+    "Perplexity":       Perplexity(),
+    "MeanTokenEntropy": MeanTokenEntropy(),
+}
 
 STOP = []
 SURE = []
@@ -82,8 +89,16 @@ def inference(tokenizer,model,input_text,subject,prompt_data):
     )
     output_text = {0: "A", 1: "B", 2: "C", 3: "D"}[np.argmax(probs)]
     conf = np.max(probs)
-        
-    return output_text, full_input, conf.item()
+
+    token_log_likelihood = float(np.log(conf))
+    token_entropy = float(-np.sum(probs * np.log(probs + 1e-10)))
+    polygraph_stats = {
+        "greedy_log_likelihoods": [[token_log_likelihood]],
+        "entropy": [[token_entropy]],
+    }
+    uncertainty_scores = [-est(polygraph_stats)[0] for est in ESTIMATORS.values()]
+
+    return output_text, full_input, conf.item(), uncertainty_scores
 
 def checksure(input_text):
     full_input = f"{input_text}. Are you sure you accurately answered the question based on your internal knowledge? I am"
@@ -132,13 +147,11 @@ if __name__ == "__main__":
         prompt_data = prompt[i]
         type_name = i
         for instance in tqdm(data[i]):
-            output,full_input, predict_conf = inference(tokenizer,model,instance,i,prompt_data)
+            output, full_input, predict_conf, polygraph_scores = inference(tokenizer,model,instance,i,prompt_data)
             sure_prob = checksure(f"{full_input}{output}")
-            
-            if instance[5] in output:
-                results.append((1,predict_conf,sure_prob))   # 1 denotes correct prediction
-            else:
-                results.append((0,predict_conf,sure_prob))   # 0 denotes wrong prediction
+
+            correct = 1 if instance[5] in output else 0
+            results.append([correct, predict_conf, sure_prob, *polygraph_scores])
             
         torch.cuda.empty_cache()
         
